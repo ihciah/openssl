@@ -252,11 +252,13 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
         if (b->next_bio == NULL)
             return 0;
         ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
+        BIO_copy_next_retry(b);
         break;
     case BIO_CTRL_EOF:
         if (ctx->ibuf_len > 0)
             return 0;
         ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
+        BIO_copy_next_retry(b);
         break;
     case BIO_CTRL_INFO:
         ret = (long)ctx->obuf_len;
@@ -275,6 +277,7 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
             if (b->next_bio == NULL)
                 return 0;
             ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
+            BIO_copy_next_retry(b);
         }
         break;
     case BIO_CTRL_PENDING:
@@ -283,6 +286,7 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
             if (b->next_bio == NULL)
                 return 0;
             ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
+            BIO_copy_next_retry(b);
         }
         break;
     case BIO_C_SET_BUFF_READ_DATA:
@@ -360,6 +364,7 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
             return 0;
         if (ctx->obuf_len <= 0) {
             ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
+            BIO_copy_next_retry(b);
             break;
         }
 
@@ -380,6 +385,7 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
             }
         }
         ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
+        BIO_copy_next_retry(b);
         break;
     case BIO_CTRL_DUP:
         dbio = (BIO *)ptr;
@@ -402,6 +408,7 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
         if (b->next_bio == NULL)
             return 0;
         ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
+        BIO_copy_next_retry(b);
         break;
     }
     return ret;
